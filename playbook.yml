@@ -1,0 +1,217 @@
+---
+- name: Setup IRC Server with Intentional Vulnerabilities
+  hosts: ircserver
+  become: true
+  vars:
+    irc_server_dir: /opt/ircd
+    irc_log_dir: /var/log/ircd
+    flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - inspircd
+          - python3-pip
+        state: present
+
+    - name: Create IRC server directory
+      ansible.builtin.file:
+        path: "{{ irc_server_dir }}"
+        state: directory
+        mode: '0755'
+        owner: irc
+        group: irc
+
+    - name: Create IRC log directory with weak permissions (VULNERABILITY 1)
+      ansible.builtin.file:
+        path: "{{ irc_log_dir }}"
+        state: directory
+        mode: '0644'
+        owner: irc
+        group: irc
+
+    - name: Configure InspIRCd with logging enabled
+      ansible.builtin.copy:
+        src: resources/config.conf
+        dest: /etc/inspircd/inspircd.conf
+        mode: '0644'
+
+    - name: Create MOTD file
+      ansible.builtin.copy:
+        dest: /etc/inspircd/motd.txt
+        mode: '0644'
+        content: |
+          ========================================
+          Welcome to CTF IRC Server
+          ========================================
+          This is a training environment.
+          Have fun and hack responsibly!
+          ========================================
+
+    - name: Create rules file
+      ansible.builtin.copy:
+        dest: /etc/inspircd/rules.txt
+        mode: '0644'
+        content: |
+          1. Be respectful
+          2. No flooding
+          3. Follow CTF rules
+
+    - name: Ensure InspIRCd service is enabled and started
+      ansible.builtin.systemd:
+        name: inspircd
+        enabled: true
+        state: restarted
+
+    - name: Wait for IRC server to be ready
+      ansible.builtin.wait_for:
+        port: 6667
+        delay: 5
+        timeout: 30
+
+    - name: Create backup script with weak permissions (VULNERABILITY 3)
+      ansible.builtin.copy:
+        src: resources/irc-backup.sh
+        dest: /usr/local/bin/irc-backup.sh
+        mode: '0755'
+
+    - name: Create web server for log viewing (VULNERABILITY 4)
+      ansible.builtin.copy:
+        src: resources/log-server.py
+        dest: /usr/local/bin/irc-log-server.py
+        mode: '0755'
+
+    - name: Create systemd service for log server
+      ansible.builtin.copy:
+        src: resources/irc-log-server.service
+        dest: /etc/systemd/system/irc-log-server.service
+        mode: '0644'
+
+    - name: Enable and start log server
+      ansible.builtin.systemd:
+        name: irc-log-server
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Create hint file in web root (VULNERABILITY 5)
+      ansible.builtin.copy:
+        dest: /var/www/html/.hint.txt
+        mode: '0644'
+        content: |
+          Looking for logs? Check port 8080
+          Default IRC port is 6667
+      when: false  # Only create if you want an obvious hint
+
+- name: Setup IRC Clients
+  hosts: ircclients
+  become: true
+  vars:
+    irc_server: "100.65.7.86"
+    flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
+
+  tasks:
+    - name: Install IRC client and dependencies
+      ansible.builtin.apt:
+        name:
+          - irssi
+          - expect
+          - netcat-openbsd
+        state: present
+        update_cache: true
+
+    - name: Create IRC client scripts directory
+      ansible.builtin.file:
+        path: /opt/irc-scripts
+        state: directory
+        mode: '0755'
+
+- name: Execute Client scripts
+  hosts: ircclients
+  become: true
+  vars:
+    irc_server: "100.65.7.86"
+    flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
+  tasks:
+    - name: Create expect script for client 1 (flag holder)
+      ansible.builtin.template:
+        src: resources/client1-expect.exp
+        dest: /opt/irc-scripts/send_flag.exp
+        mode: '0755'
+      when: inventory_hostname == "gwm8432-client01"
+
+    - name: Create expect script for client 2
+      ansible.builtin.template:
+        src: resources/client2-expect.exp
+        dest: /opt/irc-scripts/chat_normal.exp
+        mode: '0755'
+      when: inventory_hostname == "gwm8432-client02"
+
+
+- name: Execute IRC Client Conversations
+  hosts: ircclients
+  become: true
+  serial: 1  # Run one at a time to maintain message order
+
+  tasks:
+    - name: Wait for IRC server to be fully ready
+      ansible.builtin.wait_for:
+        host: "100.65.7.86"
+        port: 6667
+        delay: 5
+        timeout: 60
+
+    - name: Execute client 1 script (Alice with flag)
+      ansible.builtin.command:
+        cmd: /opt/irc-scripts/send_flag.exp
+      when: inventory_hostname == "gwm8432-client01"
+      register: client1_output
+      changed_when: true
+
+    - name: Wait between clients
+      ansible.builtin.pause:
+        seconds: 3
+      when: inventory_hostname == "gwm8432-client01"
+
+    - name: Execute client 2 script (Bob)
+      ansible.builtin.command:
+        cmd: /opt/irc-scripts/chat_normal.exp
+      when: inventory_hostname == "gwm8432-client02"
+      register: client2_output
+      changed_when: true
+
+
+- name: Final Server Configuration
+  hosts: ircserver
+  become: true
+
+  tasks:
+    - name: Set permissive permissions on message log (VULNERABILITY 6)
+      ansible.builtin.file:
+        path: /var/log/ircd/messages.log
+        mode: '0644'
+        owner: irc
+        group: irc
+        state: touch  # Changed from "file" to "touch" - creates if doesn't exist
+
+    - name: Create additional vulnerability - exposed config backup
+      ansible.builtin.copy:
+        src: /etc/inspircd/inspircd.conf
+        dest: /tmp/inspircd.conf.bak
+        mode: '0644'
+        remote_src: true
+
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "IRC CTF Environment Setup Complete!"
+          - "IRC Server: 100.65.7.86:6667"
+          - "Log Server: http://100.65.7.86:8080"
+          - "Message logs: /var/log/ircd/messages.log"
+          - "Vulnerabilities planted successfully!"

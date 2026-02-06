@@ -1,0 +1,24 @@
+#!/usr/bin/expect -f
+set timeout 30
+
+spawn irssi
+
+expect "Irssi:"
+send "/connect {{ irc_server }}\r"
+
+sleep 3
+send "/nick bob\r"
+
+sleep 2
+send "/join #general\r"
+
+sleep 3
+send "Hi Alice! This CTF looks interesting.\r"
+
+sleep 2
+send "Has anyone tried the crypto challenges yet?\r"
+
+sleep 3
+send "/quit\r"
+
+expect eof

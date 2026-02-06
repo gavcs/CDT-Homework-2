@@ -1,0 +1,27 @@
+#!/usr/bin/expect -f
+set timeout 30
+
+spawn irssi
+
+expect "Irssi:"
+send "/connect {{ irc_server }}\r"
+
+sleep 3
+send "/nick alice\r"
+
+sleep 2
+send "/join #general\r"
+
+sleep 2
+send "Hey everyone, welcome to the CTF!\r"
+
+sleep 2
+send "I've hidden the flag somewhere safe: {{ flag }}\r"
+
+sleep 2
+send "Good luck finding it! :)\r"
+
+sleep 3
+send "/quit\r"
+
+expect eof

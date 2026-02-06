@@ -1,0 +1,12 @@
+[Unit]
+Description=IRC Log Server (Vulnerable)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/irc-log-server.py
+Restart=always
+User=irc
+
+[Install]
+WantedBy=multi-user.target

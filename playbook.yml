@@ -6,6 +6,7 @@
     irc_server_dir: /opt/ircd
     irc_log_dir: /var/log/ircd
     flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
+    irc_password: "cyberpsychosis"
 
   tasks:
     - name: Update apt cache
@@ -32,7 +33,7 @@
       ansible.builtin.file:
         path: "{{ irc_log_dir }}"
         state: directory
-        mode: '0644'
+        mode: '0755'
         owner: irc
         group: irc
 
@@ -81,47 +82,19 @@
         dest: /usr/local/bin/irc-backup.sh
         mode: '0755'
 
-    - name: Create web server for log viewing (VULNERABILITY 4)
-      ansible.builtin.copy:
-        src: resources/log-server.py
-        dest: /usr/local/bin/irc-log-server.py
-        mode: '0755'
-
-    - name: Create systemd service for log server
-      ansible.builtin.copy:
-        src: resources/irc-log-server.service
-        dest: /etc/systemd/system/irc-log-server.service
-        mode: '0644'
-
-    - name: Enable and start log server
-      ansible.builtin.systemd:
-        name: irc-log-server
-        enabled: true
-        state: started
-        daemon_reload: true
-
-    - name: Create hint file in web root (VULNERABILITY 5)
-      ansible.builtin.copy:
-        dest: /var/www/html/.hint.txt
-        mode: '0644'
-        content: |
-          Looking for logs? Check port 8080
-          Default IRC port is 6667
-      when: false  # Only create if you want an obvious hint
-
 - name: Setup IRC Clients
   hosts: ircclients
   become: true
   vars:
     irc_server: "100.65.7.86"
+    irc_password: "cyberpsychosis"
     flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
 
   tasks:
     - name: Install IRC client and dependencies
       ansible.builtin.apt:
         name:
-          - irssi
-          - expect
+          - python3-pip
           - netcat-openbsd
         state: present
         update_cache: true
@@ -132,24 +105,17 @@
         state: directory
         mode: '0755'
 
-- name: Execute Client scripts
-  hosts: ircclients
-  become: true
-  vars:
-    irc_server: "100.65.7.86"
-    flag: "FLAG{1RC_L0GS_4R3_N0T_S3CUR3_8y_D3F4ULT}"
-  tasks:
-    - name: Create expect script for client 1 (flag holder)
+    - name: Create python script for client 1 (flag holder)
       ansible.builtin.template:
-        src: resources/client1-expect.exp
-        dest: /opt/irc-scripts/send_flag.exp
+        src: resources/send_flag.py
+        dest: /opt/irc-scripts/send_flag.py
         mode: '0755'
       when: inventory_hostname == "gwm8432-client01"
 
-    - name: Create expect script for client 2
+    - name: Create python script for client 2
       ansible.builtin.template:
-        src: resources/client2-expect.exp
-        dest: /opt/irc-scripts/chat_normal.exp
+        src: resources/chat_normal.py
+        dest: /opt/irc-scripts/chat_normal.py
         mode: '0755'
       when: inventory_hostname == "gwm8432-client02"
 
@@ -169,10 +135,15 @@
 
     - name: Execute client 1 script (Alice with flag)
       ansible.builtin.command:
-        cmd: /opt/irc-scripts/send_flag.exp
+        cmd: /usr/bin/python3 /opt/irc-scripts/send_flag.py
       when: inventory_hostname == "gwm8432-client01"
       register: client1_output
       changed_when: true
+
+    - name: Display client 1 client1_output
+      ansible.builtin.debug:
+        var: client1_output.stdout_lines
+      when: inventory_hostname == "gwm8432-client01"
 
     - name: Wait between clients
       ansible.builtin.pause:
@@ -181,10 +152,15 @@
 
     - name: Execute client 2 script (Bob)
       ansible.builtin.command:
-        cmd: /opt/irc-scripts/chat_normal.exp
+        cmd: /usr/bin/python3 /opt/irc-scripts/chat_normal.py
       when: inventory_hostname == "gwm8432-client02"
       register: client2_output
       changed_when: true
+
+    - name: Display client 2 output
+      ansible.builtin.debug:
+        var: cleint2_output.stdout_lines
+      when: inventory_hostname == "gwm8432-client02"
 
 
 - name: Final Server Configuration
@@ -212,6 +188,12 @@
         msg:
           - "IRC CTF Environment Setup Complete!"
           - "IRC Server: 100.65.7.86:6667"
-          - "Log Server: http://100.65.7.86:8080"
           - "Message logs: /var/log/ircd/messages.log"
           - "Vulnerabilities planted successfully!"
+          - ""
+          - "Exploitation Path:"
+          - "1. Find IRC server (nmap)"
+          - "2. Discover password requirement"
+          - "3. Find password in backup script or config backup"
+          - "4. Connect to IRC or read logs directly"
+          - "5. Extract flag from messages.log"

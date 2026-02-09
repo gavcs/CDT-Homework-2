@@ -64,6 +64,163 @@
           2. No flooding
           3. Follow CTF rules
 
+    - name: Create IRC logging bot
+      ansible.builtin.copy:
+        dest: /usr/local/bin/irc-logger.py
+        mode: '0755'
+        content: |
+          #!/usr/bin/env python3
+          import socket
+          import time
+          from datetime import datetime
+
+          SERVER = "127.0.0.1"
+          PORT = 6667
+          PASSWORD = "cyberpsychosis"
+          NICKNAME = "logger"
+          CHANNEL = "#general"
+          LOGFILE = "/var/log/ircd/messages.log"
+
+          def log_message(msg):
+              timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+              with open(LOGFILE, 'a') as f:
+                  f.write(f"{timestamp} {msg}\n")
+
+          sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          sock.connect((SERVER, PORT))
+
+          sock.send(f"PASS {PASSWORD}\r\n".encode())
+          sock.send(f"NICK {NICKNAME}\r\n".encode())
+          sock.send(f"USER {NICKNAME} 0 * :Logger Bot\r\n".encode())
+
+          time.sleep(2)
+          sock.send(f"JOIN {CHANNEL}\r\n".encode())
+
+          while True:
+              try:
+                  data = sock.recv(4096).decode('utf-8', errors='ignore')
+                  if not data:
+                      break
+
+                  for line in data.split('\r\n'):
+                      if line:
+                          log_message(line)
+
+                          # Handle PING
+                          if line.startswith('PING'):
+                              sock.send(f"PONG {line.split()[1]}\r\n".encode())
+
+                          # Log channel messages
+                          if 'PRIVMSG' in line and CHANNEL in line:
+                              log_message(line)
+              except:
+                  break
+
+          sock.close()
+
+    - name: Create systemd service for IRC logger
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/irc-logger.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=IRC Message Logger
+          After=inspircd.service
+          Requires=inspircd.service
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/python3 /usr/local/bin/irc-logger.py
+          Restart=always
+          User=irc
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Start IRC logger service
+      ansible.builtin.systemd:
+        name: irc-logger
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    # - name: Install git and build tools for custom module
+    #   ansible.builtin.apt:
+    #     name:
+    #       - git
+    #       - g++
+    #       - make
+    #       - pkg-config
+    #       - inspircd-dev
+    #     state: present
+
+    # - name: Create m_chatlog module source
+    #   ansible.builtin.copy:
+    #     dest: /tmp/m_chatlog.cpp
+    #     mode: '0644'
+    #     content: |
+    #       #include "inspircd.h"
+    #       #include <fstream>
+
+    #       class ModuleChatLog : public Module
+    #       {
+    #       private:
+    #         std::string logfile;
+
+    #       public:
+    #         void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+    #         {
+    #           ConfigTag* tag = ServerInstance->Config->ConfValue("chatlog");
+    #           logfile = tag->getString("target", "/var/log/ircd/messages.log");
+    #         }
+
+    #         void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
+    #         {
+    #           if (target.type == MessageTarget::TYPE_CHANNEL)
+    #           {
+    #             Channel* chan = target.Get<Channel>();
+    #             time_t rawtime;
+    #             struct tm* timeinfo;
+    #             char buffer[80];
+
+    #             time(&rawtime);
+    #             timeinfo = localtime(&rawtime);
+    #             strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+
+    #             std::ofstream log(logfile.c_str(), std::ios::app);
+    #             if (log.is_open())
+    #             {
+    #               log << buffer << " " << chan->name << " <" << user->nick << "> " << details.text << std::endl;
+    #               log.close();
+    #             }
+    #           }
+    #         }
+
+    #         Version GetVersion() CXX11_OVERRIDE
+    #         {
+    #           return Version("Logs channel messages to file", VF_VENDOR);
+    #         }
+    #       };
+
+    #       MODULE_INIT(ModuleChatLog)
+
+    # - name: Compile m_chatlog module
+    #   ansible.builtin.shell: |
+    #     g++ -shared -fPIC -DPIC -std=c++11 \
+    #       -I/usr/include/inspircd \
+    #       -o /usr/lib/inspircd/modules/m_chatlog.so \
+    #       /tmp/m_chatlog.cpp
+    #   args:
+    #     executable: /bin/bash
+    #     creates: /usr/lib/inspircd/modules/m_chatlog.so
+
+    # - name: Set permissions on m_chatlog module
+    #   ansible.builtin.file:
+    #     path: /usr/lib/inspircd/modules/m_chatlog.so
+    #     owner: root
+    #     group: root
+    #     mode: '0644'
+
     - name: Ensure InspIRCd service is enabled and started
       ansible.builtin.systemd:
         name: inspircd

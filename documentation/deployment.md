@@ -20,7 +20,7 @@ With your working directory being the CDT-Homework-2 directory, run:
 - ``ansible-playbook -i inventory.ini playbook.yml``
 
 Here's the playbook starting:
-![Playbook starting](../screenshots/ircstart.png)
+&emsp;![Playbook starting](../screenshots/ircstart.png)
 Here's the playbook ending:
 ![Playbook ending](../screenshots/successfulcompletion.png)
 Here's the server showing that inspircd (IRC Server) and irc-logger (python message logging bot) are both running

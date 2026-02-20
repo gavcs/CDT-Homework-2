@@ -18,4 +18,4 @@
 ### Ansible-playbook Running Instructions
 With your working directory being the CDT-Homework-2 directory, run:
 - ``ansible-playbook -i inventory.ini playbook.yml``
-This will begin the script:
+![Playbook starting](../screenshots/ircstart.png "Here's the playbook starting to run")

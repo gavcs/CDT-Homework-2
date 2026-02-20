@@ -223,3 +223,8 @@ gwm8432-srv01              : ok=17   changed=2    unreachable=0    failed=0    s
 ### Troubleshooting
 
 &emsp;There isn't much troubleshooting needed for this. It's pretty straightforward, but if there's any issues that do arrise, it is likely from the inventory file, make sure to add an inventory file with the correct ip addresses and passwords set before running the playbook. Also make sure that the deployment machine's public key is on each machine's ~/.ssh/authorized_keys file.
+
+## 3. Verification
+
+To verify, check /var/log/ircd/messages.log. If there's output here, it means that the python bot is logging things. If the flag is active, and messages from both Bob and Alice are showing up, it means that the clients ran the python scripts and the flag is in the messages.log file. Here's what that would look like:
+![Verifying everything is working](../screenshots/irc_messages_logged.png)

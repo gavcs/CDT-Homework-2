@@ -215,7 +215,8 @@ changed: [gwm8432-client-02]
 PLAY RECAP *****************************************************************************************************************************************************************************************************
 gwm8432-client-01          : ok=21   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
 gwm8432-client-02          : ok=20   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
-gwm8432-srv01              : ok=17   changed=2    unreachable=0    failed=0    skipped=7    rescued=0    ignored=0```
+gwm8432-srv01              : ok=17   changed=2    unreachable=0    failed=0    skipped=7    rescued=0    ignored=0
+```
 
 ### Troubleshooting
 

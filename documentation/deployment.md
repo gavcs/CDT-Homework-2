@@ -5,4 +5,4 @@
 - Ansible 2.10.8
 - Python 3.10.12
 
-&nbsp;The clients must be on the same network as the server, or the server must be publicly accessible in order for this deployment to work.
+&emsp;The clients must be on the same network as the server, or the server must be publicly accessible in order for this deployment to work.

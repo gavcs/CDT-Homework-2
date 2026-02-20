@@ -12,3 +12,10 @@
 
 ### Manual Setup
 &emsp;There's no manual setup needed before running Ansible other than making sure that the machines have the prerequisites.
+
+## 2. Installation and Configuration
+
+### Ansible-playbook Running Instructions
+With your working directory being the CDT-Homework-2 directory, run:
+- ``ansible-playbook -i inventory.ini playbook.yml``
+This will begin the script:

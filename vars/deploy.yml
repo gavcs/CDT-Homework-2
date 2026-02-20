@@ -1,0 +1,4 @@
+  irc_server_dir: /opt/ircd
+  irc_log_dir: /var/log/ircd
+  flag: "flag{1RC_L0GS_4R3_N0T_S3CUR3}"
+  irc_password: "cyberpsychosis"

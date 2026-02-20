@@ -1,0 +1,13 @@
+[Unit]
+Description=IRC Message Logger
+After=inspircd.service
+Requires=inspircd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/irc-logger.py
+Restart=always
+User=irc
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,6 @@
 # Deployment Documentation
 
-### 1. Prerequisites
+## 1. Prerequisites
 - Ubuntu 22.04 x3 (1 for the server, 2 for the clients)
 - Ansible 2.10.8
 - Python 3.10.12

@@ -32,7 +32,8 @@ nmap showing that the IRC server port is open
 ![IRC port open](../screenshots/irc_port_open.png)
 
 ### Command Expected Output
-```~/CDT-Homework-2$ ansible-playbook -i inventory.ini playbook.yml 
+```bash
+~/CDT-Homework-2$ ansible-playbook -i inventory.ini playbook.yml 
 
 PLAY [IRC Server] **********************************************************************************************************************************************************************************************
 

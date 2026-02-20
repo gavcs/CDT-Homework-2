@@ -18,6 +18,7 @@
 ### Ansible-playbook Running Instructions
 With your working directory being the CDT-Homework-2 directory, run:
 - ``ansible-playbook -i inventory.ini playbook.yml``
+* NOTE: This will not work as of currently because the machines will have already been removed. If you wish to reproduce this, you must first change the IP addresses, usernames, and passwords of the machines inside of the inventory file to match those of the machines you'll be using.
 
 Here's the playbook starting:
 [Playbook starting](../screenshots/ircstart.png)

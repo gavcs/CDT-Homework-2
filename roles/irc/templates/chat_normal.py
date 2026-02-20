@@ -4,6 +4,7 @@ import time
       
 SERVER = "{{ irc_server }}"
 PORT = 6667
+PASSWORD = "{{ irc_password }}"
 NICKNAME = "bob"
 CHANNEL = "#general"
       

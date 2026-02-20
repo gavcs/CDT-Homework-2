@@ -1,4 +1,4 @@
-# Server deploy
+---
 - name: IRC Server
   hosts: ircserver
   become: true
@@ -12,4 +12,4 @@
   become: true
   roles:
     - role: irc
-      tags: [deploy, populate]
+      tags: [deploy, populate, traffic]

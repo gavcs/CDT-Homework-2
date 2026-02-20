@@ -1,27 +1,27 @@
 - name: Install IRC client and dependencies
-    ansible.builtin.apt:
-      name:
-        - python3-pip
-        - netcat-openbsd
-      state: present
-      update_cache: true
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - netcat-openbsd
+    state: present
+    update_cache: true
 
-  - name: Create IRC client scripts directory
-    ansible.builtin.file:
-      path: /opt/irc-scripts
-      state: directory
-      mode: '0755'
+- name: Create IRC client scripts directory
+  ansible.builtin.file:
+    path: /opt/irc-scripts
+    state: directory
+    mode: '0755'
 
-  - name: Create python script for client 1 (flag holder)
-    ansible.builtin.template:
-      src: send_flag.py
-      dest: /opt/irc-scripts/send_flag.py
-      mode: '0755'
-    when: inventory_hostname == "irc-client-01"
+- name: Create python script for client 1 (flag holder)
+  ansible.builtin.template:
+    src: send_flag.py
+    dest: /opt/irc-scripts/send_flag.py
+    mode: '0755'
+  when: inventory_hostname == "gwm8432-client-01"
 
-  - name: Create python script for client 2
-    ansible.builtin.template:
-      src: chat_normal.py
-      dest: /opt/irc-scripts/chat_normal.py
-      mode: '0755'
-    when: inventory_hostname == "irc-client-02"
+- name: Create python script for client 2
+  ansible.builtin.template:
+    src: chat_normal.py
+    dest: /opt/irc-scripts/chat_normal.py
+    mode: '0755'
+  when: inventory_hostname == "gwm8432-client-02"

@@ -1,85 +1,85 @@
 - name: Update apt cache
-    ansible.builtin.apt:
-      update_cache: true
-      cache_valid_time: 3600
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
 
-  - name: Install required packages
-    ansible.builtin.apt:
-      name:
-        - inspircd
-        - python3-pip
-      state: present
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - inspircd
+      - python3-pip
+    state: present
 
-  - name: Create IRC server directory
-    ansible.builtin.file:
-      path: "{{ irc_server_dir }}"
-      state: directory
-      mode: '0755'
-      owner: irc
-      group: irc
+- name: Create IRC server directory
+  ansible.builtin.file:
+    path: "{{ irc_server_dir }}"
+    state: directory
+    mode: '0755'
+    owner: irc
+    group: irc
 
-  - name: Create IRC log directory with weak permissions (VULNERABILITY 1)
-    ansible.builtin.file:
-      path: "{{ irc_log_dir }}"
-      state: directory
-      mode: '0755'
-      owner: irc
-      group: irc
+- name: Create IRC log directory with weak permissions (VULNERABILITY 1)
+  ansible.builtin.file:
+    path: "{{ irc_log_dir }}"
+    state: directory
+    mode: '0755'
+    owner: irc
+    group: irc
 
-  - name: Configure InspIRCd with logging enabled
-    ansible.builtin.copy:
-      src: config.conf
-      dest: /etc/inspircd/inspircd.conf
-      mode: '0644'
+- name: Configure InspIRCd with logging enabled
+  ansible.builtin.copy:
+    src: config.conf
+    dest: /etc/inspircd/inspircd.conf
+    mode: '0644'
 
-  - name: Create MOTD file
-    ansible.builtin.copy:
-      dest: /etc/inspircd/motd.txt
-      mode: '0644'
-      content: |
-        ========================================
-        Welcome to CTF IRC Server
-        ========================================
-        This is a training environment.
-        Have fun and hack responsibly!
-        ========================================
+- name: Create MOTD file
+  ansible.builtin.copy:
+    dest: /etc/inspircd/motd.txt
+    mode: '0644'
+    content: |
+      ========================================
+      Welcome to CTF IRC Server
+      ========================================
+      This is a training environment.
+      Have fun and hack responsibly!
+      ========================================
 
-  - name: Create rules file
-    ansible.builtin.copy:
-      dest: /etc/inspircd/rules.txt
-      mode: '0644'
-      content: |
-        1. Be respectful
-        2. No flooding
-        3. Follow CTF rules
+- name: Create rules file
+  ansible.builtin.copy:
+    dest: /etc/inspircd/rules.txt
+    mode: '0644'
+    content: |
+      1. Be respectful
+      2. No flooding
+      3. Follow CTF rules
 
-  - name: Create IRC logging bot
-    ansible.builtin.template:
-      src: log_bot.py
-      dest: /usr/local/bin/irc-logger.py
-      mode: '0755'
+- name: Create IRC logging bot
+  ansible.builtin.template:
+    src: log_bot.py
+    dest: /usr/local/bin/irc-logger.py
+    mode: '0755'
 
-  - name: Create systemd service for IRC logger
-    ansible.builtin.copy:
-      src: irc-log-server.service
-      dest: /etc/systemd/system/irc-logger.service
-      mode: '0644'
+- name: Create systemd service for IRC logger
+  ansible.builtin.copy:
+    src: irc-log-server.service
+    dest: /etc/systemd/system/irc-logger.service
+    mode: '0644'
 
-  - name: Start IRC logger service
-    ansible.builtin.systemd:
-      name: irc-logger
-      enabled: true
-      state: started
-      daemon_reload: true
+- name: Start IRC logger service
+  ansible.builtin.systemd:
+    name: irc-logger
+    enabled: true
+    state: started
+    daemon_reload: true
 
-  - name: Ensure InspIRCd service is enabled and started
-    ansible.builtin.systemd:
-      name: inspircd
-      enabled: true
-      state: restarted
+- name: Ensure InspIRCd service is enabled and started
+  ansible.builtin.systemd:
+    name: inspircd
+    enabled: true
+    state: restarted
 
-  - name: Wait for IRC server to be ready
-    ansible.builtin.wait_for:
-      port: 6667
-      delay: 5
-      timeout: 30
+- name: Wait for IRC server to be ready
+  ansible.builtin.wait_for:
+    port: 6667
+    delay: 5
+    timeout: 30

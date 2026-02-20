@@ -1,7 +1,7 @@
 - name: Set permissive permissions on message log (VULNERABILITY 6)
-    ansible.builtin.file:
-      path: /var/log/ircd/messages.log
-      mode: '0644'
-      owner: irc
-      group: irc
-      state: touch
+  ansible.builtin.file:
+    path: /var/log/ircd/messages.log
+    mode: '0644'
+    owner: irc
+    group: irc
+    state: touch

@@ -1,0 +1,11 @@
+- ansible.builtin.import_tasks: deploy.yml
+  tags: [deploy]
+
+- ansible.builtin.import_tasks: populate.yml
+  tags: [populate]
+
+- ansible.builtin.import_tasks: traffic.yml
+  tags: [traffic]
+
+- ansible.builtin.import_tasks: configure.yml
+  tags: [configure]

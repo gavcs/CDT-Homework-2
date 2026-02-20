@@ -1,0 +1,15 @@
+# Server deploy
+- name: IRC Server
+  hosts: ircserver
+  become: true
+  roles:
+    - role: irc
+      tags: [deploy, configure]
+
+# Client setup
+- name: IRC Clients Setup
+  hosts: ircclients
+  become: true
+  roles:
+    - role: irc
+      tags: [deploy, populate]

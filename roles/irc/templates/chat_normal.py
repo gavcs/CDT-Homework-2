@@ -5,7 +5,6 @@ import time
 SERVER = "{{ irc_server }}"
 PORT = 6667
 NICKNAME = "bob"
-PASSWORD = "{{ irc_password }}"
 CHANNEL = "#general"
       
 def send_msg(sock, msg):

@@ -1,4 +1,4 @@
-  irc_server: 10.10.10.29
+  irc_server: 100.65.7.118
   irc_password: "cyberpsychosis"
   flag: "flag{1RC_L0GS_4R3_N0T_S3CUR3}"
   irc_server_dir: /opt/ircd

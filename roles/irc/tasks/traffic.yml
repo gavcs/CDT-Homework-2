@@ -1,0 +1,35 @@
+  - name: Wait for IRC server to be fully ready
+    ansible.builtin.wait_for:
+      host: "100.65.7.118"
+      port: 6667
+      delay: 5
+      timeout: 60
+
+  - name: Execute client 1 script (Alice with flag)
+    ansible.builtin.command:
+      cmd: /usr/bin/python3 /opt/irc-scripts/send_flag.py
+    when: inventory_hostname == "irc-client-01"
+    register: client1_output
+    changed_when: true
+
+  - name: Display client 1 client1_output
+    ansible.builtin.debug:
+      var: client1_output.stdout_lines
+    when: inventory_hostname == "irc-client-01"
+
+  - name: Wait between clients
+    ansible.builtin.pause:
+      seconds: 3
+    when: inventory_hostname == "irc-client-01"
+
+  - name: Execute client 2 script (Bob)
+    ansible.builtin.command:
+      cmd: /usr/bin/python3 /opt/irc-scripts/chat_normal.py
+    when: inventory_hostname == "irc-client-02"
+    register: client2_output
+    changed_when: true
+
+  - name: Display client 2 output
+    ansible.builtin.debug:
+      var: client2_output.stdout_lines
+    when: inventory_hostname == "irc-client-02"

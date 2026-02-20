@@ -27,6 +27,8 @@ Here's the server showing that inspircd (IRC Server) and irc-logger (python mess
 ![Services running](../screenshots/services-running.png)
 Here's a screenshot showing that anyone can connect with the password, ip, and port (in this instance irssi was used)
 ![IRC client connected](../screenshots/irc_connection.png)
+nmap showing that the IRC server port is open
+![IRC port open](../screenshots/irc_port_open.png)
 
 ### Command Expected Output
 ```~/CDT-Homework-2$ ansible-playbook -i inventory.ini playbook.yml 

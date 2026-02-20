@@ -216,3 +216,7 @@ PLAY RECAP *********************************************************************
 gwm8432-client-01          : ok=21   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
 gwm8432-client-02          : ok=20   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
 gwm8432-srv01              : ok=17   changed=2    unreachable=0    failed=0    skipped=7    rescued=0    ignored=0```
+
+### Troubleshooting
+
+&emsp;There isn't much troubleshooting needed for this. It's pretty straightforward, but if there's any issues that do arrise, it is likely from the inventory file, make sure to add an inventory file with the correct ip addresses and passwords set before running the playbook. Also make sure that the deployment machine's public key is on each machine's ~/.ssh/authorized_keys file.

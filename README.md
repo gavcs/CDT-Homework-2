@@ -19,3 +19,6 @@
 
 ## Documentation
 * both the deployment and exploitation guides are in the documentation directory.
+
+## Competition Use Cases
+Red can use this as leverage to gain more control. Blue uses to communicate with each other. Grey uses to see how people are doing in comp.
